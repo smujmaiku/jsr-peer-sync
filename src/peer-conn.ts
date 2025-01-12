@@ -7,7 +7,7 @@ export interface PeerConnEvents {
 	peers: (pids: string[]) => void;
 	peerOpen: (pid: string) => void;
 	peerClose: (pid: string) => void;
-	peerData:(pid:string, data:unknown)=>void;
+	peerData:(pid:string, data:unknown)=>void; // TODO
 }
 
 export interface PeerConnOptionsI extends PeerOptions {
@@ -47,6 +47,7 @@ export class PeerConn extends TypedEmitter<PeerConnEvents> {
 	}
 
 	get peers(): string[] {
+		// TODO actually check for connected
 		return Object.keys(this.$peers);
 	}
 
