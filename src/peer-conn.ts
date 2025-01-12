@@ -117,14 +117,12 @@ export class PeerConn<PD extends unknown>
 		this.closePeer(pid);
 		if (!pids.includes(pid)) {
 			peer.close();
-			console.log('not this time');
 			return;
 		}
 
 		$peers[pid] = peer;
 
 		peer.on('data', (data: unknown) => {
-			console.log('data', data);
 			this.emit('peerData', pid, data as PD);
 		});
 		peer.on('close', () => {
@@ -140,7 +138,6 @@ export class PeerConn<PD extends unknown>
 		const { $peers } = this;
 
 		const peer = $peers[pid];
-		console.log('send', pid, data);
 		peer.send(data);
 	}
 
