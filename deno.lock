@@ -1,0 +1,53 @@
+{
+  "version": "4",
+  "specifiers": {
+    "npm:immer@*": "10.1.1",
+    "npm:immer@^10.1.1": "10.1.1",
+    "npm:peerjs@*": "1.5.4",
+    "npm:peerjs@^1.5.4": "1.5.4",
+    "npm:tiny-typed-emitter@*": "2.1.0",
+    "npm:tiny-typed-emitter@^2.1.0": "2.1.0"
+  },
+  "npm": {
+    "@msgpack/msgpack@2.8.0": {
+      "integrity": "sha512-h9u4u/jiIRKbq25PM+zymTyW6bhTzELvOoUd+AvYriWOAKpLGnIamaET3pnHYoI5iYphAHBI4ayx0MehR+VVPQ=="
+    },
+    "eventemitter3@4.0.7": {
+      "integrity": "sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw=="
+    },
+    "immer@10.1.1": {
+      "integrity": "sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw=="
+    },
+    "peerjs-js-binarypack@2.1.0": {
+      "integrity": "sha512-YIwCC+pTzp3Bi8jPI9UFKO0t0SLo6xALnHkiNt/iUFmUUZG0fEEmEyFKvjsDKweiFitzHRyhuh6NvyJZ4nNxMg=="
+    },
+    "peerjs@1.5.4": {
+      "integrity": "sha512-yFsoLMnurJKlQbx6kVSBpOp+AlNldY1JQS2BrSsHLKCZnq6t7saHleuHM5svuLNbQkUJXHLF3sKOJB1K0xulOw==",
+      "dependencies": [
+        "@msgpack/msgpack",
+        "eventemitter3",
+        "peerjs-js-binarypack",
+        "webrtc-adapter"
+      ]
+    },
+    "sdp@3.2.0": {
+      "integrity": "sha512-d7wDPgDV3DDiqulJjKiV2865wKsJ34YI+NDREbm+FySq6WuKOikwyNQcm+doLAZ1O6ltdO0SeKle2xMpN3Brgw=="
+    },
+    "tiny-typed-emitter@2.1.0": {
+      "integrity": "sha512-qVtvMxeXbVej0cQWKqVSSAHmKZEHAvxdF8HEUBFWts8h+xEo5m/lEiPakuyZ3BnCBjOD8i24kzNOiOLLgsSxhA=="
+    },
+    "webrtc-adapter@9.0.1": {
+      "integrity": "sha512-1AQO+d4ElfVSXyzNVTOewgGT/tAomwwztX/6e3totvyyzXPvXIIuUUjAmyZGbKBKbZOXauuJooZm3g6IuFuiNQ==",
+      "dependencies": [
+        "sdp"
+      ]
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:immer@^10.1.1",
+      "npm:peerjs@^1.5.4",
+      "npm:tiny-typed-emitter@^2.1.0"
+    ]
+  }
+}
