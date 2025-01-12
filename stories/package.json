@@ -1,0 +1,33 @@
+{
+	"name": "stories",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "npm run storybook",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build"
+	},
+	"keywords": [],
+	"author": "Michael Szmadzinski",
+	"license": "ISC",
+	"devDependencies": {
+		"@chromatic-com/storybook": "^3.2.3",
+		"@storybook/addon-essentials": "^8.4.7",
+		"@storybook/addon-interactions": "^8.4.7",
+		"@storybook/addon-onboarding": "^8.4.7",
+		"@storybook/addon-webpack5-compiler-swc": "^2.0.0",
+		"@storybook/blocks": "^8.4.7",
+		"@storybook/react": "^8.4.7",
+		"@storybook/react-webpack5": "^8.4.7",
+		"@storybook/test": "^8.4.7",
+		"prop-types": "^15.8.1",
+		"storybook": "^8.4.7"
+	},
+	"dependencies": {
+		"immer": "^10.1.1",
+		"peerjs": "^1.5.4",
+		"tiny-typed-emitter": "^2.1.0"
+	}
+}
