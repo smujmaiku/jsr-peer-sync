@@ -1,20 +1,21 @@
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { DataConnection, Peer, PeerOptions } from 'peerjs';
 
-export interface PeerConnEvents {
+export interface PeerConnEvents<PD extends unknown> {
 	connected: () => void;
 	disconnected: () => void;
 	peers: (pids: string[]) => void;
 	peerOpen: (pid: string) => void;
 	peerClose: (pid: string) => void;
-	peerData:(pid:string, data:unknown)=>void; // TODO
+	peerData: (pid: string, data: PD) => void;
 }
 
 export interface PeerConnOptionsI extends PeerOptions {
 	id?: string;
 }
 
-export class PeerConn extends TypedEmitter<PeerConnEvents> {
+export class PeerConn<PD extends unknown>
+	extends TypedEmitter<PeerConnEvents<PD>> {
 	private $timer?: number;
 
 	private $host: Peer;
@@ -30,6 +31,7 @@ export class PeerConn extends TypedEmitter<PeerConnEvents> {
 
 		this.$host.on('open', this.handleOpen.bind(this));
 		this.$host.on('disconnected', this.handleDisconnected.bind(this));
+		this.$host.on('connection', this.handlePeer.bind(this));
 
 		this.start();
 	}
@@ -47,8 +49,8 @@ export class PeerConn extends TypedEmitter<PeerConnEvents> {
 	}
 
 	get peers(): string[] {
-		// TODO actually check for connected
-		return Object.keys(this.$peers);
+		const { $peers } = this;
+		return Object.keys($peers).filter((pid) => $peers[pid].open);
 	}
 
 	get pids(): string[] {
@@ -84,7 +86,6 @@ export class PeerConn extends TypedEmitter<PeerConnEvents> {
 		for (const pid of $pids) {
 			if (typeof pid !== 'string') continue;
 			if (pid === id || $peers[pid]) continue;
-			console.log("CONNECT")
 
 			const peer = $host.connect(pid);
 			this.handlePeer(peer);
@@ -92,7 +93,6 @@ export class PeerConn extends TypedEmitter<PeerConnEvents> {
 	}
 
 	private emitPeers() {
-		console.log('this.peers', this.peers)
 		this.emit('peers', this.peers);
 	}
 
@@ -112,35 +112,43 @@ export class PeerConn extends TypedEmitter<PeerConnEvents> {
 
 	private handlePeer(peer: DataConnection): void {
 		const { $peers, pids } = this;
-		const { peer: pid } = peer;
+		const { peer: pid, open } = peer;
 
 		this.closePeer(pid);
 		if (!pids.includes(pid)) {
 			peer.close();
+			console.log('not this time');
 			return;
 		}
 
+		$peers[pid] = peer;
+
+		peer.on('data', (data: unknown) => {
+			console.log('data', data);
+			this.emit('peerData', pid, data as PD);
+		});
 		peer.on('close', () => {
 			this.closePeer(pid);
 		});
-
-		this.emit('peerOpen', pid);
-		$peers[pid] = peer;
-		this.emitPeers();
+		peer.on('open', () => {
+			this.emit('peerOpen', pid);
+			this.emitPeers();
+		});
 	}
 
-	send(pid: string, type: string, payload: unknown): void {
+	send(pid: string, data: PD): void {
 		const { $peers } = this;
 
 		const peer = $peers[pid];
-		peer.send([type, payload]);
+		console.log('send', pid, data);
+		peer.send(data);
 	}
 
-	sendAll(type: string, payload: unknown): void {
-		const { $peers } = this;
+	sendAll(data: PD): void {
+		const { peers } = this;
 
-		for (const pid of Object.keys($peers)) {
-			this.send(pid, type, payload);
+		for (const pid of peers) {
+			this.send(pid, data);
 		}
 	}
 
