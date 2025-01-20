@@ -1,12 +1,22 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@smujdev/deep-observer@*": "0.1.0",
+    "jsr:@smujdev/deep-observer@~0.1.1": "0.1.1",
     "npm:immer@*": "10.1.1",
     "npm:immer@^10.1.1": "10.1.1",
     "npm:peerjs@*": "1.5.4",
     "npm:peerjs@^1.5.4": "1.5.4",
     "npm:tiny-typed-emitter@*": "2.1.0",
     "npm:tiny-typed-emitter@^2.1.0": "2.1.0"
+  },
+  "jsr": {
+    "@smujdev/deep-observer@0.1.0": {
+      "integrity": "99c0d2c62e2700dd8c7f44b339d21600fa764a2e407795058a2c388d2c7da869"
+    },
+    "@smujdev/deep-observer@0.1.1": {
+      "integrity": "87d2da0ac76f72e9f59d54b4fd044f03ac5266be09a737092c9098a2310be692"
+    }
   },
   "npm": {
     "@msgpack/msgpack@2.8.0": {
@@ -45,6 +55,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@smujdev/deep-observer@~0.1.1",
       "npm:immer@^10.1.1",
       "npm:peerjs@^1.5.4",
       "npm:tiny-typed-emitter@^2.1.0"
