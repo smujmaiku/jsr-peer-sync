@@ -1,7 +1,11 @@
-import { TypedEmitter } from 'tiny-typed-emitter';
+import {
+	DefaultListener,
+	ListenerSignature,
+	TypedEmitter,
+} from 'tiny-typed-emitter';
 import { DataConnection, Peer, PeerOptions } from 'peerjs';
 
-export interface PeerConnEvents<PD extends unknown> {
+export interface PeerConnEvents<PD = unknown> {
 	connected: () => void;
 	disconnected: () => void;
 	peers: (pids: string[]) => void;
@@ -14,8 +18,10 @@ export interface PeerConnOptionsI extends PeerOptions {
 	id?: string;
 }
 
-export class PeerConn<PD extends unknown>
-	extends TypedEmitter<PeerConnEvents<PD>> {
+export class PeerConn<
+	PD = unknown,
+	L extends ListenerSignature<L> = DefaultListener,
+> extends TypedEmitter<PeerConnEvents<PD> & L> {
 	private $timer?: number;
 
 	private $host: Peer;
