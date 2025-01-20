@@ -3,14 +3,9 @@ import { createDraft, current, Draft, finishDraft } from 'immer';
 import { AnyObject } from './types.ts';
 import uuidSmall from './uuid.ts';
 
-export interface AssetStateEventI<S> {
-	id: string;
-	state: Partial<S>;
-}
-
 export interface AssetEventsI<S> {
-	state: (state: AssetStateEventI<S>) => void;
-	dispose: (id: string) => void;
+	state: (state: Partial<S>) => void;
+	dispose: () => void;
 }
 
 export interface AssetOptionsI {
@@ -92,11 +87,11 @@ export class PeerAsset<S extends AnyObject> extends TypedEmitter<
 		if (Object.keys(patch).length < 1) return;
 
 		// Emit
-		this.emit('state', { id, state: patch });
+		this.emit('state', patch);
 	}
 
 	dispose() {
-		this.emit('dispose', this.id);
+		this.emit('dispose');
 	}
 }
 
