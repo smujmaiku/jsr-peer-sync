@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import uuidSmall from './src/uuid.ts';
-import PSync from './src/peer-conn.ts';
+import uuid from './src/uuid.ts';
+import PSync from './src/peer-sync.ts';
 
 function PeerExample({ peers: peersProp, onId }) {
 	const [conn, setConn] = useState(null!);
 	const [peers, setPeers] = useState([]);
+	const [checked, setChecked] = useState(false);
+	const [assets, setAssets] = useState({});
+	const [assetId] = useState(() => uuid());
 
 	useEffect(() => {
 		const psync = new PSync({});
@@ -25,26 +28,63 @@ function PeerExample({ peers: peersProp, onId }) {
 		conn.on('connected', () => {
 			onId(conn.id);
 		});
-		conn.on('peerData', console.log);
+
 		conn.on('peers', setPeers);
 	}, [conn]);
 
 	useEffect(() => {
 		if (!conn) return;
-		conn.sendAll('hallo');
-	}, [peers]);
+
+		const handleAssets = (...args) => {
+			console.log('handleassets', conn.id, args);
+			setAssets(conn.assets);
+		};
+		conn.on('assetState', handleAssets);
+
+		conn.createAsset(assetId, { checked: false });
+
+		return () => {
+			conn.off('assetState', handleAssets);
+			conn.removeAssetById(assetId);
+		};
+	}, [conn, assetId]);
+
+	useEffect(() => {
+		const asset = assets[assetId];
+		if (!asset) return;
+		asset.checked = checked;
+	}, [assetId, checked]);
 
 	return (
 		<div style={{ border: '1px solid pink' }}>
 			<ul>
 				<li>id: {conn?.id}</li>
 				<li>
-					peers:<ul>
-						{peersProp.map((pid) => (
-							<li>{pid} {peers.includes(pid) && '(connected)'}</li>
-						))}
-					</ul>
+					<input
+						type='checkbox'
+						checked={checked}
+						onChange={({ target }) => setChecked(target.checked)}
+					/>
+					{assetId}
 				</li>
+				{peersProp.map((pid) => (
+					<li key={pid}>
+						peer: {pid || 'unknown'}
+						{peers.includes(pid) && '(connected)'}
+						{pid && (
+							<ul>
+								{Object.entries(conn?.getAssetsByOwner(pid) || {}).map((
+									[aid, asset],
+								) => (
+									<li key={aid}>
+										<input type='checkbox' checked={asset?.checked} disabled />
+										{aid}
+									</li>
+								))}
+							</ul>
+						)}
+					</li>
+				))}
 			</ul>
 		</div>
 	);

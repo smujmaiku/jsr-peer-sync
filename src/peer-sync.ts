@@ -41,14 +41,28 @@ export class PeerSync<S extends AnyObject>
 	extends PeerConn<NetEventT<S>, PeerConnEvents<S>> {
 	private $assets: Record<
 		string,
-		{ asset?: S; owner?: string; callback: BatchedEventCallbackFn }
+		{ state?: S; asset?: S; owner?: string; callback: BatchedEventCallbackFn }
 	> = {};
 
 	get assets(): Record<string, S> {
 		const { $assets } = this;
 		const assets: Record<string, S> = {};
+
 		for (const [id, { asset }] of Object.entries($assets)) {
 			if (!asset) continue;
+			assets[id] = asset;
+		}
+		// TODO memo this until something changes
+		return assets;
+	}
+
+	getAssetsByOwner(pid?: string): Record<string, S> {
+		const { $assets } = this;
+		const assets: Record<string, S> = {};
+
+		for (const [id, { asset, owner }] of Object.entries($assets)) {
+			if (!asset) continue;
+			if (owner !== pid) continue;
 			assets[id] = asset;
 		}
 		return assets;
@@ -87,10 +101,14 @@ export class PeerSync<S extends AnyObject>
 			};
 		const asset = createDeepObserverBatched(state, callback, 1);
 		this.$assets[id] = {
+			state,
 			asset,
 			owner,
 			callback,
 		};
+
+		this.emit('assetState', id, state);
+
 		return asset;
 	}
 
@@ -100,7 +118,7 @@ export class PeerSync<S extends AnyObject>
 
 		const { asset, callback } = instance;
 
-		if(asset && callback){
+		if (asset && callback) {
 			removeDeepObserverBatched(asset, callback);
 		}
 
@@ -134,27 +152,27 @@ export class PeerSync<S extends AnyObject>
 				this.cleanAssets();
 
 				for (const id of assets) {
-					this.$reserveAsset(id,pid)
+					this.$reserveAsset(id, pid);
 					this.send(pid, ['GETASSET', { id }]);
 				}
 				break;
 			}
 			case 'ASSETSTATE': {
 				const { id, state } = payload;
-				const {asset, owner} = this.$assets[id];
+				const { asset, owner } = this.$assets[id] || {};
 
 				if (owner !== pid) {
 					this.send(pid, ['HELO', undefined]);
 					break;
 				}
 
-				if(!asset){
-					this.$createAsset(id,state,pid);
+				if (!asset) {
+					this.$createAsset(id, state, pid);
 					break;
 				}
 
-				for(const [key,value] of Object.entries(state)){
-					Reflect.set(asset,key,value);
+				for (const [key, value] of Object.entries(state)) {
+					Reflect.set(asset, key, value);
 				}
 				break;
 			}
@@ -172,35 +190,33 @@ export class PeerSync<S extends AnyObject>
 		}
 	}
 
-	sendAssetState(pid: string, id: string) {
-		const { asset } = this.assets[id];
-
-		this.send(pid, ['ASSETSTATE', {
-			id,
-			state: asset.state,
-		}]);
-	}
-
 	sendAssetList(pid: string) {
+		const assets = Object.entries(this.$assets).filter(([, { owner, asset }]) =>
+			asset && owner === undefined
+		).map(([id]) => id);
 		this.send(pid, ['ASSETLIST', {
-			assets: this.peers,
+			assets,
 		}]);
 	}
 
 	sendAllAssetList() {
+		const assets = Object.entries(this.$assets).filter(([, { owner, asset }]) =>
+			asset && owner === undefined
+		).map(([id]) => id);
 		this.sendAll(['ASSETLIST', {
-			assets: this.peers,
+			assets,
 		}]);
 	}
 
 	sendAsset(pid: string, id: string) {
-		const {$assets} = this;
-		const {asset} = $assets[id];
-		if(!asset)return;
-		
+		const { $assets } = this;
+		const { state } = $assets[id];
+
+		if (!state) return;
+
 		this.send(pid, ['ASSETSTATE', {
 			id,
-			state:asset,
+			state,
 		}]);
 	}
 }
