@@ -1,6 +1,6 @@
 // @ts-types="@types/memoizee"
 import memoizee, { Memoized } from 'memoizee';
-import { AnyObject } from './types.ts';
+import type { AnyObject } from './types.ts';
 import {
 	BatchedEventCallbackFn,
 	createDeepObserverBatched,
@@ -13,7 +13,7 @@ function clearMemoizee<T extends Function | Memoized<T>>(fn: T): void {
 	fn.clear();
 }
 
-interface NetEventsI<S extends any> {
+interface NetEventsI<S extends AnyObject> {
 	HELO: undefined;
 	GETASSET: { id: string };
 	ASSETLIST: { assets: string[] };
@@ -27,15 +27,15 @@ const netEventType: (keyof NetEventsI<never>)[] = [
 	'ASSETSTATE',
 ];
 
-type NetEventT<S> = {
+type NetEventT<S extends AnyObject> = {
 	[K in keyof NetEventsI<S>]: [K, NetEventsI<S>[K]];
 }[keyof NetEventsI<S>];
 
-export interface PeerConnEvents<PD = unknown> {
+export interface PeerSyncEvents<PD = unknown> {
 	assetState: (id: string, state: PD) => void;
 }
 
-function parseEvent<S extends any>(data: unknown): NetEventT<S> | [] {
+function parseEvent<S extends AnyObject>(data: unknown): NetEventT<S> | [] {
 	if (!(data instanceof Array)) return [];
 
 	const [type, payload] = data;
@@ -45,7 +45,7 @@ function parseEvent<S extends any>(data: unknown): NetEventT<S> | [] {
 }
 
 export class PeerSync<S extends AnyObject>
-	extends PeerConn<NetEventT<S>, PeerConnEvents<S>> {
+	extends PeerConn<NetEventT<S>, PeerSyncEvents<S>> {
 	private $assets: Record<
 		string,
 		{ state?: S; asset?: S; owner?: string; callback: BatchedEventCallbackFn }

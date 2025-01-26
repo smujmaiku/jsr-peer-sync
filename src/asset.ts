@@ -1,6 +1,6 @@
 import { TypedEmitter } from 'tiny-typed-emitter';
 import { createDraft, current, Draft, finishDraft } from 'immer';
-import { AnyObject } from './types.ts';
+import type { AnyObject } from './types.ts';
 import uuidSmall from './uuid.ts';
 
 export interface AssetEventsI<S> {
