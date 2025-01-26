@@ -1,3 +1,5 @@
+// @ts-types="@types/memoizee"
+import memoizee, { Memoized } from 'memoizee';
 import { AnyObject } from './types.ts';
 import {
 	BatchedEventCallbackFn,
@@ -5,6 +7,11 @@ import {
 	removeDeepObserverBatched,
 } from '@smujdev/deep-observer';
 import PeerConn, { PeerConnOptionsI } from './peer-conn.ts';
+
+function clearMemoizee<T extends Function | Memoized<T>>(fn: T): void {
+	if (!('clear' in fn)) return;
+	fn.clear();
+}
 
 interface NetEventsI<S extends any> {
 	HELO: undefined;
@@ -44,7 +51,7 @@ export class PeerSync<S extends AnyObject>
 		{ state?: S; asset?: S; owner?: string; callback: BatchedEventCallbackFn }
 	> = {};
 
-	get assets(): Record<string, S> {
+	getAssets(): Record<string, S> {
 		const { $assets } = this;
 		const assets: Record<string, S> = {};
 
@@ -52,8 +59,12 @@ export class PeerSync<S extends AnyObject>
 			if (!asset) continue;
 			assets[id] = asset;
 		}
-		// TODO memo this until something changes
+
 		return assets;
+	}
+
+	get assets(): Record<string, S> {
+		return this.getAssets();
 	}
 
 	getAssetsByOwner(pid?: string): Record<string, S> {
@@ -74,6 +85,32 @@ export class PeerSync<S extends AnyObject>
 		this.on('peers', this.handlePeers.bind(this));
 		this.on('peerOpen', this.handlePeerOpen.bind(this));
 		this.on('peerData', this.handlePeerData.bind(this));
+
+		this.getAssets = memoizee(this.getAssets.bind(this));
+		this.getAssetsByOwner = memoizee(this.getAssetsByOwner.bind(this));
+	}
+
+	private emitAssetState(id: string, state: S) {
+		clearMemoizee(this.getAssets);
+		clearMemoizee(this.getAssetsByOwner);
+
+		this.emit('assetState', id, state);
+	}
+
+	private handleAssetChange(
+		id: string,
+		state: S,
+		owner: string | undefined,
+		_props: Parameters<BatchedEventCallbackFn>[0],
+	) {
+		if (owner) {
+			this.emitAssetState(id, state);
+		} else {
+			clearMemoizee(this.getAssets);
+			clearMemoizee(this.getAssetsByOwner);
+
+			this.sendAll(['ASSETSTATE', { id, state }]);
+		}
 	}
 
 	createAsset(id: string, state: S): S {
@@ -92,13 +129,8 @@ export class PeerSync<S extends AnyObject>
 	private $createAsset(id: string, state: S, owner: string | undefined): S {
 		this.$reserveAsset(id, owner);
 
-		const callback = owner
-			? () => {
-				this.emit('assetState', id, state);
-			}
-			: () => {
-				this.sendAll(['ASSETSTATE', { id, state }]);
-			};
+		const callback = this.handleAssetChange.bind(this, id, state, owner);
+
 		const asset = createDeepObserverBatched(state, callback, 1);
 		this.$assets[id] = {
 			state,
@@ -107,7 +139,7 @@ export class PeerSync<S extends AnyObject>
 			callback,
 		};
 
-		this.emit('assetState', id, state);
+		this.emitAssetState(id, state);
 
 		return asset;
 	}

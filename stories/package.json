@@ -23,6 +23,7 @@
 		"@storybook/react-webpack5": "^8.4.7",
 		"@storybook/test": "^8.4.7",
 		"jsr": "^0.13.2",
+		"memoizee": "^0.4.17",
 		"prop-types": "^15.8.1",
 		"storybook": "^8.4.7"
 	},

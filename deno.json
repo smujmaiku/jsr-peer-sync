@@ -15,6 +15,8 @@
 	},
 	"imports": {
 		"@smujdev/deep-observer": "jsr:@smujdev/deep-observer@^0.2.0",
+		"@types/memoizee": "npm:@types/memoizee@^0.4.11",
+		"memoizee": "npm:memoizee@^0.4.17",
 		"peerjs": "npm:peerjs@^1.5.4",
 		"tiny-typed-emitter": "npm:tiny-typed-emitter@^2.1.0"
 	}
