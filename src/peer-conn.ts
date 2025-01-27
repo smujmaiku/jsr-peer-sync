@@ -21,7 +21,7 @@ export interface PeerConnOptionsI extends PeerOptions {
 export class PeerConn<
 	PD = unknown,
 	L extends ListenerSignature<L> = DefaultListener,
-> extends TypedEmitter<PeerConnEvents<PD> & L> {
+> extends TypedEmitter<L & PeerConnEvents<PD>> {
 	private $timer?: number;
 
 	private $host: Peer;
@@ -74,12 +74,22 @@ export class PeerConn<
 		this.updatePeers();
 	}
 
+	private connEmit<U extends keyof PeerConnEvents<PD>>(
+		event: U,
+		...args: Parameters<PeerConnEvents<PD>[U]>
+	): boolean {
+		const emit = this.emit.bind(this) as TypedEmitter<
+			PeerConnEvents<PD>
+		>['emit'];
+		return emit(event, ...args);
+	}
+
 	private handleOpen(): void {
-		this.emit('connected');
+		this.connEmit('connected');
 	}
 
 	private handleDisconnected(): void {
-		this.emit('disconnected');
+		this.connEmit('disconnected');
 	}
 
 	private updatePeers() {
@@ -99,7 +109,7 @@ export class PeerConn<
 	}
 
 	private emitPeers() {
-		this.emit('peers', this.peers);
+		this.connEmit('peers', this.peers);
 	}
 
 	private closePeer(pid: string): void {
@@ -111,7 +121,7 @@ export class PeerConn<
 		peer.close();
 		peer.removeAllListeners();
 
-		this.emit('peerClose', pid);
+		this.connEmit('peerClose', pid);
 		delete $peers[pid];
 		this.emitPeers();
 	}
@@ -129,13 +139,13 @@ export class PeerConn<
 		$peers[pid] = peer;
 
 		peer.on('data', (data: unknown) => {
-			this.emit('peerData', pid, data as PD);
+			this.connEmit('peerData', pid, data as PD);
 		});
 		peer.on('close', () => {
 			this.closePeer(pid);
 		});
 		peer.on('open', () => {
-			this.emit('peerOpen', pid);
+			this.connEmit('peerOpen', pid);
 			this.emitPeers();
 		});
 	}
