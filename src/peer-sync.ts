@@ -1,12 +1,12 @@
 // @ts-types="@types/memoizee"
-import memoizee, { Memoized } from 'memoizee';
+import memoizee, { type Memoized } from 'memoizee';
 import type { AnyObject } from './types.ts';
 import {
-	BatchedEventCallbackFn,
+	type BatchedEventCallbackFn,
 	createDeepObserverBatched,
 	removeDeepObserverBatched,
 } from '@smujdev/deep-observer';
-import PeerConn, { PeerConnOptionsI } from './peer-conn.ts';
+import { PeerConn, type PeerConnOptionsI } from './peer-conn.ts';
 
 function clearMemoizee<T extends Function | Memoized<T>>(fn: T): void {
 	if (!('clear' in fn)) return;
@@ -252,5 +252,10 @@ export class PeerSync<S extends AnyObject>
 		}]);
 	}
 }
+
+export * from './peer-conn.ts';
+export * from './peer-sync.ts';
+export * from './types.ts';
+export * from './uuid.ts';
 
 export default PeerSync;

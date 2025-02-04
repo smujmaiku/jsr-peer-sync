@@ -3,7 +3,7 @@ import {
 	ListenerSignature,
 	TypedEmitter,
 } from 'tiny-typed-emitter';
-import { DataConnection, Peer, PeerOptions } from 'peerjs';
+import { type DataConnection, Peer, PeerOptions } from 'peerjs';
 
 export interface PeerConnEvents<PD = unknown> {
 	connected: () => void;

@@ -2,7 +2,7 @@
 	"name": "@smujdev/peer-sync",
 	"version": "0.1.0",
 	"license": "MIT",
-	"exports": "./src/index.ts",
+	"exports": "./src/peer-sync.ts",
 	"publish": {
 		"include": [
 			"readme.md",
