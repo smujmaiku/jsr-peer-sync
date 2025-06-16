@@ -5,6 +5,12 @@ import {
 } from 'tiny-typed-emitter';
 import { type DataConnection, Peer, PeerOptions } from 'peerjs';
 
+class UnknownConnectionEvent extends Event {
+	constructor(public peer:DataConnection) {
+		super('unknownConnection');
+	}
+}
+
 export interface PeerConnEvents<PD = unknown> {
 	connected: () => void;
 	disconnected: () => void;
@@ -12,6 +18,7 @@ export interface PeerConnEvents<PD = unknown> {
 	peerOpen: (pid: string) => void;
 	peerClose: (pid: string) => void;
 	peerData: (pid: string, data: PD) => void;
+	unknownConnection: (peer: DataConnection, event: UnknownConnectionEvent) => void;
 }
 
 export interface PeerConnOptionsI extends PeerOptions {
@@ -132,6 +139,9 @@ export class PeerConn<
 
 		this.closePeer(pid);
 		if (!pids.includes(pid)) {
+			const event = new UnknownConnectionEvent(peer);
+			this.connEmit('unknownConnection', peer, event);
+			if(event.defaultPrevented) return;
 			peer.close();
 			return;
 		}
@@ -163,6 +173,12 @@ export class PeerConn<
 		for (const pid of peers) {
 			this.send(pid, data);
 		}
+	}
+
+	manualConnect(pid:string){
+		const { $host } = this;
+		const peer = $host.connect(pid);
+		this.handlePeer(peer);
 	}
 
 	start() {
