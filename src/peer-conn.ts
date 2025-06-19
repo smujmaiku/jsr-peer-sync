@@ -6,8 +6,8 @@ import {
 import { type DataConnection, Peer, PeerOptions } from 'peerjs';
 
 class UnknownConnectionEvent extends Event {
-	constructor(public peer:DataConnection) {
-		super('unknownConnection');
+	constructor(public peer: DataConnection) {
+		super('unknownConnection', {cancelable:true});
 	}
 }
 
@@ -18,7 +18,10 @@ export interface PeerConnEvents<PD = unknown> {
 	peerOpen: (pid: string) => void;
 	peerClose: (pid: string) => void;
 	peerData: (pid: string, data: PD) => void;
-	unknownConnection: (peer: DataConnection, event: UnknownConnectionEvent) => void;
+	unknownConnection: (
+		peer: DataConnection,
+		event: UnknownConnectionEvent,
+	) => void;
 }
 
 export interface PeerConnOptionsI extends PeerOptions {
@@ -135,13 +138,14 @@ export class PeerConn<
 
 	private handlePeer(peer: DataConnection): void {
 		const { $peers, pids } = this;
-		const { peer: pid, open } = peer;
+		const { peer: pid } = peer;
 
 		this.closePeer(pid);
 		if (!pids.includes(pid)) {
 			const event = new UnknownConnectionEvent(peer);
 			this.connEmit('unknownConnection', peer, event);
-			if(event.defaultPrevented) return;
+
+			if (event.defaultPrevented) return;
 			peer.close();
 			return;
 		}
@@ -175,7 +179,7 @@ export class PeerConn<
 		}
 	}
 
-	manualConnect(pid:string){
+	manualConnect(pid: string) {
 		const { $host } = this;
 		const peer = $host.connect(pid);
 		this.handlePeer(peer);
