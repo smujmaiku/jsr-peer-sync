@@ -1,19 +1,25 @@
 import React, { useEffect, useRef, useState } from 'react';
-import uuid from './src/uuid.ts';
+import uuid from './src/utils/uuid.ts';
+import PeerConn from './src/peer-conn.ts';
 import PSync from './src/peer-sync.ts';
 
 function PeerExample({ peers: peersProp, onId }) {
 	const [conn, setConn] = useState(null!);
+	const [sync, setSync] = useState(null!);
 	const [peers, setPeers] = useState([]);
 	const [checked, setChecked] = useState(false);
 	const [assets, setAssets] = useState({});
 	const [assetId] = useState(() => uuid());
 
 	useEffect(() => {
-		const psync = new PSync({});
-		setConn(psync);
+		const pconn = new PeerConn({});
+		setConn(pconn);
+
+		const psync = new PSync(pconn);
+		setSync(psync);
 
 		return () => {
+			pconn.destroy();
 			psync.destroy();
 		};
 	}, []);
@@ -33,21 +39,21 @@ function PeerExample({ peers: peersProp, onId }) {
 	}, [conn]);
 
 	useEffect(() => {
-		if (!conn) return;
+		if (!sync) return;
 
 		const handleAssets = (...args) => {
 			console.log('handleassets', conn.id, args);
-			setAssets(conn.assets);
+			setAssets(sync.assets);
 		};
-		conn.on('assetState', handleAssets);
+		sync.on('assetState', handleAssets);
 
-		conn.createAsset(assetId, { checked: false });
+		sync.createAsset(assetId, { checked: false });
 
 		return () => {
-			conn.off('assetState', handleAssets);
-			conn.removeAssetById(assetId);
+			sync.off('assetState', handleAssets);
+			sync.removeAssetById(assetId);
 		};
-	}, [conn, assetId]);
+	}, [conn, sync, assetId]);
 
 	useEffect(() => {
 		const asset = assets[assetId];
@@ -73,7 +79,7 @@ function PeerExample({ peers: peersProp, onId }) {
 						{peers.includes(pid) && '(connected)'}
 						{pid && (
 							<ul>
-								{Object.entries(conn?.getAssetsByOwner(pid) || {}).map((
+								{Object.entries(sync?.getAssetsByOwner(pid) || {}).map((
 									[aid, asset],
 								) => (
 									<li key={aid}>
