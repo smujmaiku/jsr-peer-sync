@@ -7,7 +7,7 @@ import { type DataConnection, Peer, PeerOptions } from 'peerjs';
 
 class UnknownConnectionEvent extends Event {
 	constructor(public peer: DataConnection) {
-		super('unknownConnection', {cancelable:true});
+		super('unknownConnection', { cancelable: true });
 	}
 }
 
