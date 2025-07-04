@@ -1,4 +1,4 @@
-import PeerConn from './peer-conn.ts';
+import { PeerConn } from './peer-conn.ts';
 export default PeerConn;
 
 export * from './peer-conn.ts';
