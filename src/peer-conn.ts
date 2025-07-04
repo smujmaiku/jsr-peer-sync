@@ -140,7 +140,6 @@ export class PeerConn<
 		const { $peers, pids } = this;
 		const { peer: pid } = peer;
 
-		this.closePeer(pid);
 		if (!pids.includes(pid)) {
 			const event = new UnknownConnectionEvent(peer);
 			this.connEmit('unknownConnection', peer, event);
@@ -150,7 +149,13 @@ export class PeerConn<
 			return;
 		}
 
-		$peers[pid] = peer;
+		// TODO make this better some how by storing pending connections maybe
+		const abortTimer = setTimeout(() => {
+			try {
+				console.log('abort', { peer });
+				peer.close();
+			} catch (_e) {}
+		}, 1000);
 
 		peer.on('data', (data: unknown) => {
 			this.connEmit('peerData', pid, data as PD);
@@ -159,6 +164,10 @@ export class PeerConn<
 			this.closePeer(pid);
 		});
 		peer.on('open', () => {
+			clearTimeout(abortTimer);
+			this.closePeer(pid);
+			$peers[pid] = peer;
+
 			this.connEmit('peerOpen', pid);
 			this.emitPeers();
 		});
