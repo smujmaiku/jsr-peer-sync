@@ -1,8 +1,8 @@
 {
 	"name": "@smujdev/peer-sync",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"license": "MIT",
-	"exports": "./src/peer-sync.ts",
+	"exports": "./src/mod.ts",
 	"publish": {
 		"include": [
 			"readme.md",
