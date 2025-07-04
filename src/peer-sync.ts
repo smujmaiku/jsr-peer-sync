@@ -5,7 +5,7 @@ import {
 	createDeepObserverBatched,
 	removeDeepObserverBatched,
 } from 'jsr:@smujdev/deep-observer';
-import { PeerConn, type PeerConnOptionsI } from './peer-conn.ts';
+import { PeerConn } from './peer-conn.ts';
 
 interface NetEventsI<S extends AnyObject> {
 	HELO: undefined;
