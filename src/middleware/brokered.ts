@@ -28,15 +28,15 @@ export class PeerBrokered {
 		this.start();
 	}
 
-	get active() {
+	get active(): boolean {
 		return this.$timer !== undefined;
 	}
 
-	private openBroker() {
+	private openBroker(): void {
 		this.peerConn.manualConnect(this.options.brokerId);
 	}
 
-	private closeBroker() {
+	private closeBroker(): void {
 		try {
 			this.$broker?.close();
 		} catch (_e) {}
@@ -44,12 +44,12 @@ export class PeerBrokered {
 		this.$broker = undefined;
 	}
 
-	private handleConnected() {
+	private handleConnected(): void {
 		if (!this.active) return;
 		this.openBroker();
 	}
 
-	private handleUnknownConnection(peer: DataConnection, event: Event) {
+	private handleUnknownConnection(peer: DataConnection, event: Event): void {
 		if (peer.peer !== this.options.brokerId) return;
 		event.preventDefault();
 		this.closeBroker();
@@ -78,7 +78,7 @@ export class PeerBrokered {
 		});
 	}
 
-	start() {
+	start(): void {
 		this.stop();
 
 		this.$timer = setInterval(() => {
@@ -102,7 +102,7 @@ export class PeerBrokered {
 		}
 	}
 
-	stop() {
+	stop(): void {
 		clearInterval(this.$timer);
 		this.$timer = undefined;
 

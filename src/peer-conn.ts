@@ -1,9 +1,9 @@
 import {
-	DefaultListener,
-	ListenerSignature,
+	type DefaultListener,
+	type ListenerSignature,
 	TypedEmitter,
 } from 'npm:tiny-typed-emitter';
-import { type DataConnection, Peer, PeerOptions } from 'npm:peerjs';
+import { type DataConnection, Peer, type PeerOptions } from 'npm:peerjs';
 
 class UnknownConnectionEvent extends Event {
 	constructor(public peer: DataConnection) {
@@ -102,7 +102,7 @@ export class PeerConn<
 		this.connEmit('disconnected');
 	}
 
-	private updatePeers() {
+	private updatePeers(): void {
 		const { id, $host, $peers, $pids } = this;
 		for (const pid of Object.keys($peers)) {
 			if ($pids.includes(pid)) continue;
@@ -118,7 +118,7 @@ export class PeerConn<
 		}
 	}
 
-	private emitPeers() {
+	private emitPeers(): void {
 		this.connEmit('peers', this.peers);
 	}
 
@@ -188,13 +188,13 @@ export class PeerConn<
 		}
 	}
 
-	manualConnect(pid: string) {
+	manualConnect(pid: string): void {
 		const { $host } = this;
 		const peer = $host.connect(pid);
 		this.handlePeer(peer);
 	}
 
-	start() {
+	start(): void {
 		const { $host } = this;
 
 		clearInterval(this.$timer);
@@ -210,7 +210,7 @@ export class PeerConn<
 		}, 1000);
 	}
 
-	stop() {
+	stop(): void {
 		const { $host, $peers } = this;
 
 		clearInterval(this.$timer);
@@ -223,7 +223,7 @@ export class PeerConn<
 		}
 	}
 
-	destroy() {
+	destroy(): void {
 		this.stop();
 		this.$host.destroy();
 	}

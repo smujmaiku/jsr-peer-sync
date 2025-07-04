@@ -13,6 +13,12 @@
 		"singleQuote": true,
 		"useTabs": true
 	},
+	"lint": {
+		"include": ["./src"],
+		"rules": {
+			"include": ["explicit-function-return-type"]
+		}
+	},
 	"imports": {
 		"jsr:@smujdev/deep-observer@*": "jsr:@smujdev/deep-observer@^0.2.0",
 		"npm:immer@*": "npm:immer@^10.1.1",

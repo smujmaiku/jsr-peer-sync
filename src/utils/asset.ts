@@ -1,5 +1,5 @@
 import { TypedEmitter } from 'npm:tiny-typed-emitter';
-import { createDraft, current, Draft, finishDraft } from 'npm:immer';
+import { createDraft, current, type Draft, finishDraft } from 'npm:immer';
 import type { AnyObject } from './types.ts';
 import uuidSmall from './uuid.ts';
 
@@ -35,7 +35,7 @@ export class PeerAsset<S extends AnyObject> extends TypedEmitter<
 		this.baseState = current(this.draftState) as S;
 	}
 
-	get id() {
+	get id(): string {
 		return this.$id;
 	}
 
@@ -54,15 +54,15 @@ export class PeerAsset<S extends AnyObject> extends TypedEmitter<
 		this.patch(state);
 	}
 
-	patch(state: Partial<S>) {
+	patch(state: Partial<S>): void {
 		const { draftState } = this;
 		for (const [key, value] of Object.entries(state)) {
 			draftState[key as keyof Draft<S>] = value;
 		}
 	}
 
-	update() {
-		const { id, baseState: oldState, draftState } = this;
+	update(): void {
+		const { baseState: oldState, draftState } = this;
 
 		// Clear timers
 		globalThis?.clearTimeout?.(this.updateTimer);
@@ -90,7 +90,7 @@ export class PeerAsset<S extends AnyObject> extends TypedEmitter<
 		this.emit('state', patch);
 	}
 
-	dispose() {
+	dispose(): void {
 		this.emit('dispose');
 	}
 }

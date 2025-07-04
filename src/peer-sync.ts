@@ -5,7 +5,7 @@ import {
 	createDeepObserverBatched,
 	removeDeepObserverBatched,
 } from 'jsr:@smujdev/deep-observer';
-import { PeerConn } from './peer-conn.ts';
+import type { PeerConn } from './peer-conn.ts';
 
 interface NetEventsI<S extends AnyObject> {
 	HELO: undefined;
@@ -104,11 +104,11 @@ export class PeerSync<S extends AnyObject>
 		// this.getAssetsByOwner = memoize(this.getAssetsByOwner.bind(this));
 	}
 
-	private clearAssetCache() {
+	private clearAssetCache(): void {
 		// TODO
 	}
 
-	private emitAssetState(id: string, state: S) {
+	private emitAssetState(id: string, state: S): void {
 		this.clearAssetCache();
 		this.emit('assetState', id, state);
 	}
@@ -117,14 +117,14 @@ export class PeerSync<S extends AnyObject>
 		id: string,
 		type: T,
 		payload: NetEventsI<S>[T],
-	) {
+	): void {
 		this.$conn.send(id, [type, payload]);
 	}
 
 	private sendAll<T extends keyof NetEventsI<S>>(
 		type: T,
 		payload: NetEventsI<S>[T],
-	) {
+	): void {
 		this.$conn.sendAll([type, payload]);
 	}
 
@@ -133,7 +133,7 @@ export class PeerSync<S extends AnyObject>
 		state: S,
 		owner: string | undefined,
 		_props: Parameters<BatchedEventCallbackFn>[0],
-	) {
+	): void {
 		if (owner) {
 			this.emitAssetState(id, state);
 		} else {
@@ -173,7 +173,7 @@ export class PeerSync<S extends AnyObject>
 		return asset;
 	}
 
-	removeAssetById(id: string) {
+	removeAssetById(id: string): void {
 		const instance = this.$assets[id];
 		if (!instance) return;
 
@@ -186,15 +186,15 @@ export class PeerSync<S extends AnyObject>
 		delete this.$assets[id];
 	}
 
-	private handlePeers(pids: string[]) {
+	private handlePeers(_pids: string[]): void {
 		this.cleanAssets();
 	}
 
-	private handlePeerOpen(pid: string) {
+	private handlePeerOpen(pid: string): void {
 		this.send(pid, 'HELO', undefined);
 	}
 
-	private handlePeerData(pid: string, event: unknown) {
+	private handlePeerData(pid: string, event: unknown): void {
 		const [type, payload] = parseEvent<S>(event);
 
 		switch (type) {
@@ -241,7 +241,7 @@ export class PeerSync<S extends AnyObject>
 		}
 	}
 
-	cleanAssets() {
+	cleanAssets(): void {
 		const { $conn, $assets } = this;
 		const { peers } = $conn;
 
@@ -252,7 +252,7 @@ export class PeerSync<S extends AnyObject>
 		}
 	}
 
-	sendAssetList(pid: string) {
+	sendAssetList(pid: string): void {
 		const assets = Object.entries(this.$assets).filter((
 			[, { owner, asset }],
 		) => asset && owner === undefined).map(([id]) => id);
@@ -261,7 +261,7 @@ export class PeerSync<S extends AnyObject>
 		});
 	}
 
-	sendAllAssetList() {
+	sendAllAssetList(): void {
 		const assets = Object.entries(this.$assets).filter((
 			[, { owner, asset }],
 		) => asset && owner === undefined).map(([id]) => id);
@@ -270,7 +270,7 @@ export class PeerSync<S extends AnyObject>
 		});
 	}
 
-	sendAsset(pid: string, id: string) {
+	sendAsset(pid: string, id: string): void {
 		const { $assets } = this;
 		const { state } = $assets[id];
 
@@ -282,7 +282,7 @@ export class PeerSync<S extends AnyObject>
 		});
 	}
 
-	destroy() {
+	destroy(): void {
 		this.$cleanup?.();
 	}
 }

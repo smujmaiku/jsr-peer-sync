@@ -1,4 +1,4 @@
-import { DataConnection, Peer, PeerOptions } from 'npm:peerjs';
+import { type DataConnection, Peer, type PeerOptions } from 'npm:peerjs';
 import { TypedEmitter } from 'npm:tiny-typed-emitter';
 
 export class TrackedConn {
@@ -19,7 +19,7 @@ export class Broker extends TypedEmitter<PeerHostEvents> {
 	private peer: Peer;
 	private conns: Record<string, TrackedConn> = {};
 
-	get connIds() {
+	get connIds(): TrackedConn[] {
 		return Object.values(this.conns);
 	}
 
@@ -34,7 +34,7 @@ export class Broker extends TypedEmitter<PeerHostEvents> {
 		this.peer.addListener('error', console.log.bind(this, 'error'));
 	}
 
-	sendPeers() {
+	sendPeers(): void {
 		const allPeers = Object.values(this.conns).map((conn) => ({
 			id: conn.id,
 			name: conn.name,
@@ -47,7 +47,7 @@ export class Broker extends TypedEmitter<PeerHostEvents> {
 		}
 	}
 
-	private handleConnection(conn: DataConnection) {
+	private handleConnection(conn: DataConnection): void {
 		const connid = conn.connectionId;
 
 		conn.addListener('open', () => {
@@ -77,7 +77,7 @@ export class Broker extends TypedEmitter<PeerHostEvents> {
 		});
 	}
 
-	destroy() {
+	destroy(): void {
 		this.peer.destroy();
 	}
 }
