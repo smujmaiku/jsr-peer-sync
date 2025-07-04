@@ -2,7 +2,6 @@
   "version": "5",
   "specifiers": {
     "jsr:@smujdev/deep-observer@*": "0.2.0",
-    "npm:immer@*": "10.1.1",
     "npm:peerjs@*": "1.5.5",
     "npm:tiny-typed-emitter@*": "2.1.0"
   },
@@ -17,9 +16,6 @@
     },
     "eventemitter3@4.0.7": {
       "integrity": "sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw=="
-    },
-    "immer@10.1.1": {
-      "integrity": "sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw=="
     },
     "peerjs-js-binarypack@2.1.0": {
       "integrity": "sha512-YIwCC+pTzp3Bi8jPI9UFKO0t0SLo6xALnHkiNt/iUFmUUZG0fEEmEyFKvjsDKweiFitzHRyhuh6NvyJZ4nNxMg=="
@@ -49,6 +45,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@smujdev/deep-observer@0.2",
+      "npm:immer@^10.1.1",
       "npm:peerjs@^1.5.5",
       "npm:tiny-typed-emitter@^2.1.0"
     ]
