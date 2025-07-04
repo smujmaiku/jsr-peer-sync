@@ -18,6 +18,11 @@ function PeerExample({ peers: peersProp, onId }) {
 		const psync = new PSync(pconn);
 		setSync(psync);
 
+		pconn.on('connected', () => {
+			onId?.(pconn.id);
+		});
+		pconn.on('peers', setPeers);
+
 		return () => {
 			pconn.destroy();
 			psync.destroy();
@@ -28,15 +33,6 @@ function PeerExample({ peers: peersProp, onId }) {
 		if (!conn) return;
 		conn.pids = peersProp;
 	}, [conn, peersProp]);
-
-	useEffect(() => {
-		if (!conn) return;
-		conn.on('connected', () => {
-			onId(conn.id);
-		});
-
-		conn.on('peers', setPeers);
-	}, [conn]);
 
 	useEffect(() => {
 		if (!sync) return;
@@ -114,3 +110,13 @@ export default {
 };
 
 export const PeerSync = {};
+
+export const Manual =  ()=>{
+		const [id, setId] = useState('');
+		return (
+			<div>
+				<input value={id} onChange={({target})=>setId(target.value)}/>
+				<PeerExample peers={[id]}/>
+			</div>
+		)
+	}
