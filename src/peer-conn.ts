@@ -2,8 +2,8 @@ import {
 	DefaultListener,
 	ListenerSignature,
 	TypedEmitter,
-} from 'tiny-typed-emitter';
-import { type DataConnection, Peer, PeerOptions } from 'peerjs';
+} from 'npm:tiny-typed-emitter';
+import Peer, { type DataConnection, PeerOptions } from 'npm:peerjs';
 
 class UnknownConnectionEvent extends Event {
 	constructor(public peer: DataConnection) {

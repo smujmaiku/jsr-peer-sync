@@ -1,5 +1,5 @@
-import { DataConnection, Peer, PeerOptions } from 'peerjs';
-import { TypedEmitter } from 'tiny-typed-emitter';
+import Peer, { DataConnection, PeerOptions } from 'npm:peerjs';
+import { TypedEmitter } from 'npm:tiny-typed-emitter';
 
 export class TrackedConn {
 	constructor(public user: string, public dc: DataConnection) {}

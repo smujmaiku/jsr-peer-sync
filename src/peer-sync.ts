@@ -1,18 +1,11 @@
-import { TypedEmitter } from 'tiny-typed-emitter';
-// @ts-types="@types/memoizee"
-import memoizee, { type Memoized } from 'memoizee';
+import { TypedEmitter } from 'npm:tiny-typed-emitter';
 import type { AnyObject } from './utils/types.ts';
 import {
 	type BatchedEventCallbackFn,
 	createDeepObserverBatched,
 	removeDeepObserverBatched,
-} from '@smujdev/deep-observer';
+} from 'jsr:@smujdev/deep-observer';
 import { PeerConn, type PeerConnOptionsI } from './peer-conn.ts';
-
-function clearMemoizee<T extends Function | Memoized<T>>(fn: T): void {
-	if (!('clear' in fn)) return;
-	fn.clear();
-}
 
 interface NetEventsI<S extends AnyObject> {
 	HELO: undefined;
@@ -50,7 +43,12 @@ export class PeerSync<S extends AnyObject>
 	private $conn: PeerConn;
 	private $assets: Record<
 		string,
-		{ state?: S; asset?: S; owner?: string; callback: BatchedEventCallbackFn }
+		{
+			state?: S;
+			asset?: S;
+			owner?: string;
+			callback: BatchedEventCallbackFn;
+		}
 	> = {};
 	private $cleanup?: () => void;
 
@@ -101,14 +99,17 @@ export class PeerSync<S extends AnyObject>
 			conn.off('peerData', handlePeerData);
 		};
 
-		this.getAssets = memoizee(this.getAssets.bind(this));
-		this.getAssetsByOwner = memoizee(this.getAssetsByOwner.bind(this));
+		// TODO memoize this somehow
+		// this.getAssets = memoize(this.getAssets.bind(this));
+		// this.getAssetsByOwner = memoize(this.getAssetsByOwner.bind(this));
+	}
+
+	private clearAssetCache() {
+		// TODO
 	}
 
 	private emitAssetState(id: string, state: S) {
-		clearMemoizee(this.getAssets);
-		clearMemoizee(this.getAssetsByOwner);
-
+		this.clearAssetCache();
 		this.emit('assetState', id, state);
 	}
 
@@ -136,9 +137,7 @@ export class PeerSync<S extends AnyObject>
 		if (owner) {
 			this.emitAssetState(id, state);
 		} else {
-			clearMemoizee(this.getAssets);
-			clearMemoizee(this.getAssetsByOwner);
-
+			this.clearAssetCache();
 			this.sendAll('ASSETSTATE', { id, state });
 		}
 	}
@@ -254,18 +253,18 @@ export class PeerSync<S extends AnyObject>
 	}
 
 	sendAssetList(pid: string) {
-		const assets = Object.entries(this.$assets).filter(([, { owner, asset }]) =>
-			asset && owner === undefined
-		).map(([id]) => id);
+		const assets = Object.entries(this.$assets).filter((
+			[, { owner, asset }],
+		) => asset && owner === undefined).map(([id]) => id);
 		this.send(pid, 'ASSETLIST', {
 			assets,
 		});
 	}
 
 	sendAllAssetList() {
-		const assets = Object.entries(this.$assets).filter(([, { owner, asset }]) =>
-			asset && owner === undefined
-		).map(([id]) => id);
+		const assets = Object.entries(this.$assets).filter((
+			[, { owner, asset }],
+		) => asset && owner === undefined).map(([id]) => id);
 		this.sendAll('ASSETLIST', {
 			assets,
 		});

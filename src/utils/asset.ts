@@ -1,5 +1,5 @@
-import { TypedEmitter } from 'tiny-typed-emitter';
-import { createDraft, current, Draft, finishDraft } from 'immer';
+import { TypedEmitter } from 'npm:tiny-typed-emitter';
+import { createDraft, current, Draft, finishDraft } from 'npm:immer';
 import type { AnyObject } from './types.ts';
 import uuidSmall from './uuid.ts';
 

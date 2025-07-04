@@ -1,4 +1,4 @@
-import type { DataConnection } from 'peerjs';
+import type { DataConnection } from 'npm:peerjs';
 import type PeerConn from '../peer-conn.ts';
 
 interface PeerBrokeredOptionsI {
