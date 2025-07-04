@@ -7,7 +7,7 @@ import Broker from './src/middleware/brokered.ts';
 const BROKER_ID = 'asdfkljasdlfk';
 
 function BrokerPeerExample({ name }) {
-	const [id, setId] = useState(undefined)
+	const [id, setId] = useState(undefined);
 	const [conn, setConn] = useState(null!);
 	const [sync, setSync] = useState(null!);
 	const [broker, setBroker] = useState(null!);
@@ -23,15 +23,15 @@ function BrokerPeerExample({ name }) {
 		const psync = new PSync(pconn);
 		setSync(psync);
 
-		const pbroker = new Broker(pconn, { 
+		const pbroker = new Broker(pconn, {
 			brokerId: BROKER_ID,
-			payload: name
+			payload: name,
 		});
 		setBroker(pbroker);
 
-		pconn.on('connected',(()=>{
+		pconn.on('connected', () => {
 			setId(pconn.id);
-		}))
+		});
 		pconn.on('peers', setPeers);
 
 		return () => {

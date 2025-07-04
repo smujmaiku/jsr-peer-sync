@@ -7,15 +7,15 @@ import Broker from './src/broker.ts';
 const BROKER_ID = 'asdfkljasdlfk';
 
 function BrokerHostExample({ name }) {
-	const [id] = useState(BROKER_ID)
+	const [id] = useState(BROKER_ID);
 	const [conns, setConns] = useState<string[]>([]);
 
 	useEffect(() => {
 		const pbroker = new Broker(id);
 
-		pbroker.on('connection',() => {
+		pbroker.on('connection', () => {
 			setConns(pbroker.connIds);
-		})
+		});
 
 		return () => {
 			pbroker.destroy();
@@ -26,7 +26,7 @@ function BrokerHostExample({ name }) {
 		<div style={{ border: '1px solid pink' }}>
 			<ul>
 				<li>id: {id}</li>
-				{conns.map(({id,name}) => (
+				{conns.map(({ id, name }) => (
 					<li key={id}>
 						peer: {id || 'unknown'} ({name})
 					</li>

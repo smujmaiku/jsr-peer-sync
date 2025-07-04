@@ -111,12 +111,12 @@ export default {
 
 export const PeerSync = {};
 
-export const Manual =  ()=>{
-		const [id, setId] = useState('');
-		return (
-			<div>
-				<input value={id} onChange={({target})=>setId(target.value)}/>
-				<PeerExample peers={[id]}/>
-			</div>
-		)
-	}
+export const Manual = () => {
+	const [id, setId] = useState('');
+	return (
+		<div>
+			<input value={id} onChange={({ target }) => setId(target.value)} />
+			<PeerExample peers={[id]} />
+		</div>
+	);
+};
