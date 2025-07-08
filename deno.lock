@@ -1,11 +1,8 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@smujdev/deep-observer@*": "0.2.0",
     "jsr:@smujdev/deep-observer@0.2": "0.2.0",
-    "npm:peerjs@*": "1.5.5",
     "npm:peerjs@^1.5.5": "1.5.5",
-    "npm:tiny-typed-emitter@*": "2.1.0",
     "npm:tiny-typed-emitter@^2.1.0": "2.1.0"
   },
   "jsr": {

@@ -1,4 +1,8 @@
-import { type DataConnection, Peer, type PeerOptions } from 'npm:peerjs';
+import {
+	type DataConnection,
+	Peer,
+	type PeerOptions,
+} from 'npm:peerjs/dist/bundler.mjs';
 import { TypedEmitter } from 'npm:tiny-typed-emitter';
 
 export class TrackedConn {
@@ -60,8 +64,7 @@ export class Broker extends TypedEmitter<PeerHostEvents> {
 			this.sendPeers();
 		});
 
-		conn.addListener('data', (d) => {
-			console.log(d, conn);
+		conn.addListener('data', (d: unknown) => {
 			// TODO check creds
 			if (this.conns[connid]) {
 				try {
