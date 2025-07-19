@@ -195,11 +195,11 @@ export class PeerSync<S extends AnyObject>
 		delete this.$assets[id];
 	}
 
-	isAssetHidden(id: string) {
+	isAssetHidden(id: string): boolean {
 		return this.$assets[id]?.hidden;
 	}
 
-	setAssetHidden(id: string, hidden = true) {
+	setAssetHidden(id: string, hidden = true): void {
 		const instance = this.$assets[id];
 		if (!instance) return;
 		instance.hidden = hidden;
