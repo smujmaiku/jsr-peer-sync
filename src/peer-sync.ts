@@ -26,7 +26,12 @@ type NetEventT<S extends AnyObject> = {
 }[keyof NetEventsI<S>];
 
 export interface PeerSyncEvents<PD = unknown> {
-	assetState: (id: string, state: PD) => void;
+	assetState: ({}: {
+		id: string;
+		state: PD;
+		owner: string | undefined;
+		hidden: boolean;
+	}) => void;
 }
 
 function parseEvent<S extends AnyObject>(data: unknown): NetEventT<S> | [] {
@@ -46,7 +51,8 @@ export class PeerSync<S extends AnyObject>
 		{
 			state?: S;
 			asset?: S;
-			owner?: string;
+			owner: string | undefined;
+			hidden: boolean;
 			callback: BatchedEventCallbackFn;
 		}
 	> = {};
@@ -108,9 +114,11 @@ export class PeerSync<S extends AnyObject>
 		// TODO
 	}
 
-	private emitAssetState(id: string, state: S): void {
+	private emitAssetState(id: string): void {
 		this.clearAssetCache();
-		this.emit('assetState', id, state);
+		const { state, owner, hidden } = this.$assets[id];
+		if (!state) return;
+		this.emit('assetState', { id, state, owner, hidden });
 	}
 
 	private send<T extends keyof NetEventsI<S>>(
@@ -130,13 +138,12 @@ export class PeerSync<S extends AnyObject>
 
 	private handleAssetChange(
 		id: string,
-		state: S,
-		owner: string | undefined,
-		_props: Parameters<BatchedEventCallbackFn>[0],
+		_props?: Parameters<BatchedEventCallbackFn>[0],
 	): void {
-		if (owner) {
-			this.emitAssetState(id, state);
-		} else {
+		this.emitAssetState(id);
+
+		const { owner, state, hidden } = this.$assets[id];
+		if (owner !== undefined && state && !hidden) {
 			this.clearAssetCache();
 			this.sendAll('ASSETSTATE', { id, state });
 		}
@@ -151,6 +158,7 @@ export class PeerSync<S extends AnyObject>
 
 		this.$assets[id] = {
 			owner,
+			hidden: true,
 			callback: () => {},
 		};
 	}
@@ -158,17 +166,18 @@ export class PeerSync<S extends AnyObject>
 	private $createAsset(id: string, state: S, owner: string | undefined): S {
 		this.$reserveAsset(id, owner);
 
-		const callback = this.handleAssetChange.bind(this, id, state, owner);
+		const callback = this.handleAssetChange.bind(this, id);
 
 		const asset = createDeepObserverBatched(state, callback, 1);
 		this.$assets[id] = {
 			state,
 			asset,
 			owner,
+			hidden: false,
 			callback,
 		};
 
-		this.emitAssetState(id, state);
+		this.emitAssetState(id);
 
 		return asset;
 	}
@@ -184,6 +193,17 @@ export class PeerSync<S extends AnyObject>
 		}
 
 		delete this.$assets[id];
+	}
+
+	isAssetHidden(id: string) {
+		return this.$assets[id]?.hidden;
+	}
+
+	setAssetHidden(id: string, hidden = true) {
+		const instance = this.$assets[id];
+		if (!instance) return;
+		instance.hidden = hidden;
+		this.handleAssetChange(id);
 	}
 
 	private handlePeers(_pids: string[]): void {
@@ -272,9 +292,9 @@ export class PeerSync<S extends AnyObject>
 
 	sendAsset(pid: string, id: string): void {
 		const { $assets } = this;
-		const { state } = $assets[id];
+		const { state, hidden } = $assets[id];
 
-		if (!state) return;
+		if (!state || hidden) return;
 
 		this.send(pid, 'ASSETSTATE', {
 			id,
