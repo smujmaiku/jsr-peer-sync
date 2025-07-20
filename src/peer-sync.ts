@@ -143,7 +143,7 @@ export class PeerSync<S extends AnyObject>
 		this.emitAssetState(id);
 
 		const { owner, state, hidden } = this.$assets[id];
-		if (owner !== undefined && state && !hidden) {
+		if (!owner && state && !hidden) {
 			this.clearAssetCache();
 			this.sendAll('ASSETSTATE', { id, state });
 		}
